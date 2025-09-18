@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop navigation links */}
-          <div className='hidden md:flex items-center gap-1.5'>
+          <div className='hidden md:flex items-center gap-4'>
             <Button variant='link' asChild>
               <Link href='/events' className='flex items-center gap-2'>
                 <CalendarDays className='size-4' />
