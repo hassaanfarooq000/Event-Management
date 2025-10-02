@@ -1,0 +1,76 @@
+// Prisma schema reflecting the provided PostgreSQL DDL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  @@map("users")
+
+  userId     Int       @id @default(autoincrement()) @map("user_id")
+  name       String
+  email      String    @unique
+  password   String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  organizedEvents Event[]
+  reservations    ReservedEvent[]
+}
+
+model Event {
+  @@map("events")
+  @@unique([title])
+  @@index([organizerId], map: "idx_events_organizer_id")
+  @@index([dateTime], map: "idx_events_date_time")
+  @@index([city], map: "idx_events_city")
+  @@index([type], map: "idx_events_type")
+  @@index([deleteStatus], map: "idx_events_delete_status")
+
+  eventId      Int       @id @default(autoincrement()) @map("event_id")
+  title        String
+  details      String
+  location     String
+  city         String
+  dateTime     DateTime  @map("date_time")
+  day          String
+  type         String
+  organizerId  Int       @map("organizer_id")
+  vipTickets   Int       @map("vip_tickets")
+  regTickets   Int       @map("reg_tickets")
+  price        Decimal   @db.Decimal(10, 2)
+  image        String
+  deleteStatus Boolean   @default(false) @map("delete_status")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  organizer   User   @relation(fields: [organizerId], references: [userId])
+  reservations ReservedEvent[]
+}
+
+model ReservedEvent {
+  @@map("reserved_events")
+  @@unique([eventId, userId])
+  @@index([userId], map: "idx_reserved_events_user_id")
+  @@index([eventId], map: "idx_reserved_events_event_id")
+
+  id            Int      @id @default(autoincrement())
+  eventId       Int      @map("event_id")
+  userId        Int      @map("user_id")
+  completeStatus Boolean @default(false) @map("complete_status")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [eventId])
+  user  User  @relation(fields: [userId], references: [userId])
+}
+
+
